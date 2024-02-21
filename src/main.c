@@ -7,6 +7,9 @@
 #include "reader.h"
 #include "mpeg.h"
 
+#define MAX_R 100000
+#define MAX_C 100000
+
 int truncate(int x, int n)
 {
 	return (((x % n) + n) % n);
@@ -54,17 +57,17 @@ void init_grid(uint8_t *grid, int cols, int rows)
 {
 	for (int i = 0; i < cols * rows; i++)
 	{
-		int x = i % cols;
-		int y = i / cols;
-		if (pow(x, 2) + pow(y, 2) < pow((cols / 2) - (cols / 8), 2) && pow(x, 2) + pow(y, 2) > pow((cols / 2) - (cols / 4), 2))
-		{
-			grid[i] = 0b10000000;
-		}
-		else
-		{
-			grid[i] = 0b00000000;
-		}
-		// grid[i] = 0b00000000;
+		// int x = i % cols;
+		// int y = i / cols;
+		// if (pow(x, 2) + pow(y, 2) < pow((cols / 2) - (cols / 8), 2) && pow(x, 2) + pow(y, 2) > pow((cols / 2) - (cols / 4), 2))
+		// {
+		// 	grid[i] = 0b10000000;
+		// }
+		// else
+		// {
+		// 	grid[i] = 0b00000000;
+		// }
+		grid[i] = 0b00000000;
 	}
 	update_neighbors_all(grid, cols, rows);
 }
@@ -123,18 +126,22 @@ int main(int argc, char *argv)
 	SDL_Window *window;
 	SDL_Renderer *renderer;
 	SDL_Event event;
-	int cols = 800;
-	int rows = 800;
+	int cols;
+	int rows;
 	int fps = 120;
 
-	uint8_t *grid = (uint8_t *)malloc(cols * rows * sizeof(uint8_t));
+	uint8_t *grid = (uint8_t *)malloc((MAX_C * MAX_R) * sizeof(uint8_t));
 
-	init_grid(grid, cols, rows);
-	init_sdl(&window, &renderer, 800, 800, (SDL_WINDOW_SHOWN | SDL_WINDOW_FULLSCREEN), (SDL_RENDERER_ACCELERATED));
+	// read_grid("in/glider.cgol", grid, &cols, &rows);
+	read_png("in/schrodinger.png", grid, &cols, &rows);
+	update_neighbors_all(grid, cols, rows);
+
+	// init_grid(grid, cols, rows);
+	init_sdl(&window, &renderer, 800, 800, (SDL_WINDOW_SHOWN | SDL_WINDOW_FULLSCREEN_DESKTOP | SDL_WINDOW_ALLOW_HIGHDPI), (SDL_RENDERER_ACCELERATED));
 
 	int quit = 0;
 	int i = 0;
-	while (!quit && i < 1200)
+	while (!quit && i < 2400)
 	{
 		printf("Generation: %d\n", i);
 		render_grid(renderer, grid, cols, rows);
@@ -142,6 +149,7 @@ int main(int argc, char *argv)
 		update_grid(grid, cols, rows);
 		while (SDL_PollEvent(&event))
 		{
+
 			if (event.type == SDL_QUIT)
 			{
 				quit = 1;
@@ -163,7 +171,6 @@ int main(int argc, char *argv)
 		// SDL_Delay(1000 / fps);
 		i++;
 	}
-	printf("Period: %d\n", period);
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
 	SDL_Quit();

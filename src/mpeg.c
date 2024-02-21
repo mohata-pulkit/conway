@@ -8,6 +8,7 @@
 
 SDL_Surface *surface_from_grid(uint8_t *grid, int cols, int rows)
 {
+	IMG_Init(IMG_INIT_PNG);
 	SDL_Surface *surface = SDL_CreateRGBSurface(0, cols, rows, 32, 0, 0, 0, 0);
 	for (int i = 0; i < cols * rows; i++)
 	{
