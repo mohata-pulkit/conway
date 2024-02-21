@@ -4,7 +4,6 @@
 #include <time.h>
 #include <SDL2/SDL.h>
 #include "render.h"
-#define MIN(a, b) (((a) < (b)) ? (a) : (b))
 
 void init_sdl(SDL_Window **window, SDL_Renderer **renderer, int width, int height, Uint32 window_flags, Uint32 renderer_flags)
 {
@@ -17,7 +16,7 @@ void render_grid(SDL_Renderer *renderer, uint8_t *grid, int cols, int rows, int 
 {
 	int width, height;
 	SDL_GetRendererOutputSize(renderer, &width, &height);
-	int cell_size = MIN(width / cols, height / rows);
+	int cell_size = fmin(width / cols, height / rows);
 	printf("width: %d, height: %d, cell: %d\n", width, height, cell_size);
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 	SDL_RenderClear(renderer);
