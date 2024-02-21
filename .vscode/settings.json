@@ -1,5 +1,13 @@
 {
 	"files.associations": {
-		"stdint.h": "c"
-	}
+		"stdint.h": "c",
+		"limits": "c"
+	},
+	"makefile.launchConfigurations": [
+		{
+			"cwd": "/home/hamros/Documents/model-visual-phys/checkpoint-2/CGOL/bin",
+			"binaryPath": "/home/hamros/Documents/model-visual-phys/checkpoint-2/CGOL/bin/cgol",
+			"binaryArgs": []
+		}
+	]
 }

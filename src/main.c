@@ -6,6 +6,7 @@
 #include "render.h"
 #include "reader.h"
 #include "mpeg.h"
+#include "physics.h"
 
 #define MAX_R 100000
 #define MAX_C 100000
@@ -128,12 +129,14 @@ int main(int argc, char *argv)
 	SDL_Event event;
 	int cols;
 	int rows;
+	int com_x;
+	int com_y;
 	int fps = 120;
 
 	uint8_t *grid = (uint8_t *)malloc((MAX_C * MAX_R) * sizeof(uint8_t));
 
-	// read_grid("in/glider.cgol", grid, &cols, &rows);
-	read_png("in/schrodinger.png", grid, &cols, &rows);
+	read_grid("in/glider.cgol", grid, &cols, &rows);
+	// read_png("in/schrodinger.png", grid, &cols, &rows);
 	update_neighbors_all(grid, cols, rows);
 
 	// init_grid(grid, cols, rows);
@@ -141,10 +144,11 @@ int main(int argc, char *argv)
 
 	int quit = 0;
 	int i = 0;
-	while (!quit && i < 2400)
+	while (!quit && i < 1200)
 	{
 		printf("Generation: %d\n", i);
-		render_grid(renderer, grid, cols, rows);
+		find_com(grid, cols, rows, &com_x, &com_y);
+		render_grid(renderer, grid, cols, rows, com_x, com_y);
 		save_grid_png(grid, cols, rows, i);
 		update_grid(grid, cols, rows);
 		while (SDL_PollEvent(&event))

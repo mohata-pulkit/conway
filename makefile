@@ -9,7 +9,7 @@ HDR = $(wildcard src/*.h)
 # Path: bin
 TARGET = bin/cgol
 
-all: compile run ffmpeg
+all: compile run ffmpeg-enlarge
 
 data: compile run
 
@@ -24,6 +24,12 @@ run:
 	rm -f ./data/imgs/*.png
 	rm -f ./data/vids/*.mp4
 	./$(TARGET)
+
+ffmpeg-enlarge:
+	ffmpeg -framerate 12 -i ./data/imgs/%d.png -vf scale=1200:1200 -sws_flags neighbor ./data/vids/12.mp4
+	ffmpeg -framerate 30 -i ./data/imgs/%d.png -vf scale=1200:1200 -sws_flags neighbor ./data/vids/30.mp4
+	ffmpeg -framerate 60 -i ./data/imgs/%d.png -vf scale=1200:1200 -sws_flags neighbor ./data/vids/60.mp4
+	ffmpeg -framerate 120 -i ./data/imgs/%d.png -vf scale=1200:1200 -sws_flags neighbor ./data/vids/120.mp4
 
 ffmpeg:
 	ffmpeg -framerate 12 -i ./data/imgs/%d.png ./data/vids/12.mp4
