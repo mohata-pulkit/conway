@@ -14,6 +14,9 @@ all: compile run ffmpeg
 data: compile run
 
 compile:
+	mkdir -p bin
+	mkdir -p data/imgs
+	mkdir -p data/vids
 	rm -f $(TARGET)
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $(TARGET) $(SRC) $(HDR)
 

@@ -1,3 +1,4 @@
-/out
+/out/**/imgs
 /data/imgs
 /data/vids
+/bin
