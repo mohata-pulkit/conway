@@ -2,14 +2,17 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <time.h>
+#include <string.h>
+#include <time.h>
 #include <SDL2/SDL.h>
+
 #include "render.h"
 #include "reader.h"
 #include "mpeg.h"
 #include "physics.h"
 
-#define MAX_R 100000
-#define MAX_C 100000
+#define MAX_R 10000
+#define MAX_C 10000
 
 int truncate(int x, int n)
 {
@@ -58,17 +61,16 @@ void init_grid(uint8_t *grid, int cols, int rows)
 {
 	for (int i = 0; i < cols * rows; i++)
 	{
-		// int x = i % cols;
-		// int y = i / cols;
-		// if (pow(x, 2) + pow(y, 2) < pow((cols / 2) - (cols / 8), 2) && pow(x, 2) + pow(y, 2) > pow((cols / 2) - (cols / 4), 2))
-		// {
-		// 	grid[i] = 0b10000000;
-		// }
-		// else
-		// {
-		// 	grid[i] = 0b00000000;
-		// }
-		grid[i] = 0b00000000;
+		int random = rand();
+		if ((float)random / RAND_MAX > 0.5)
+		{
+			grid[i] = 0b10000000;
+		}
+		else
+		{
+			grid[i] = 0b00000000;
+		}
+		// grid[i] = 0b00000000;
 	}
 	update_neighbors_all(grid, cols, rows);
 }
@@ -122,8 +124,9 @@ void update_grid(uint8_t *grid, int cols, int rows)
 
 int period = 0;
 
-int main(int argc, char *argv)
+int main(int argc, char **argv)
 {
+	srand(time(NULL));
 	SDL_Window *window;
 	SDL_Renderer *renderer;
 	SDL_Event event;
@@ -131,16 +134,37 @@ int main(int argc, char *argv)
 	int rows;
 	int com_x;
 	int com_y;
+	int num_alive;
 	int fps = 120;
 
 	uint8_t *grid = (uint8_t *)malloc((MAX_C * MAX_R) * sizeof(uint8_t));
 
-	read_grid("in/glider.cgol", grid, &cols, &rows);
-	// read_png("in/schrodinger.png", grid, &cols, &rows);
-	update_neighbors_all(grid, cols, rows);
+	printf("%d\n", argc);
+	for (int i = 0; i < argc; i++)
+	{
+		printf("%s\n", argv[i]);
+	}
 
-	// init_grid(grid, cols, rows);
+	if (argc == 1)
+	{
+		read_grid("in/glider.cgol", grid, &cols, &rows);
+		update_neighbors_all(grid, cols, rows);
+	}
+	else if (argc == 2)
+	{
+		read_png(argv[1], grid, &cols, &rows);
+		update_neighbors_all(grid, cols, rows);
+	}
+	else if (argc == 3)
+	{
+		cols = atoi(argv[1]);
+		rows = atoi(argv[2]);
+		init_grid(grid, cols, rows);
+	}
+
 	init_sdl(&window, &renderer, 800, 800, (SDL_WINDOW_SHOWN | SDL_WINDOW_FULLSCREEN_DESKTOP | SDL_WINDOW_ALLOW_HIGHDPI), (SDL_RENDERER_ACCELERATED));
+
+	FILE *file = fopen("data/phys.txt", "a");
 
 	int quit = 0;
 	int i = 0;
@@ -148,6 +172,7 @@ int main(int argc, char *argv)
 	{
 		printf("Generation: %d\n", i);
 		find_com(grid, cols, rows, &com_x, &com_y);
+		find_num_alive(grid, cols, rows, &num_alive);
 		render_grid(renderer, grid, cols, rows, com_x, com_y);
 		save_grid_png(grid, cols, rows, i);
 		update_grid(grid, cols, rows);
@@ -174,7 +199,10 @@ int main(int argc, char *argv)
 		}
 		// SDL_Delay(1000 / fps);
 		i++;
+
+		fprintf(file, "%d %d %d %d\n", i, num_alive, com_x, com_y);
 	}
+	fclose(file);
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
 	SDL_Quit();
